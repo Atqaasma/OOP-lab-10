@@ -1,0 +1,98 @@
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+public class AddressBook extends Application {
+
+    private TableView<Contact> table = new TableView<>();
+    private ObservableList<Contact> data = FXCollections.observableArrayList();
+
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("Address Book");
+
+        GridPane grid = new GridPane();
+
+        TextField nameField = new TextField();
+        TextField phoneField = new TextField();
+        TextField emailField = new TextField();
+
+        grid.add(new Label("Name:"), 0, 0);
+        grid.add(nameField, 1, 0);
+        grid.add(new Label("Phone:"), 0, 1);
+        grid.add(phoneField, 1, 1);
+        grid.add(new Label("Email:"), 0, 2);
+        grid.add(emailField, 1, 2);
+
+        TableColumn<Contact, String> nameColumn = new TableColumn<>("Name");
+        nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+        TableColumn<Contact, String> phoneColumn = new TableColumn<>("Phone");
+        phoneColumn.setCellValueFactory(cellData -> cellData.getValue().phoneProperty());
+        TableColumn<Contact, String> emailColumn = new TableColumn<>("Email");
+        emailColumn.setCellValueFactory(cellData -> cellData.getValue().emailProperty());
+
+        table.getColumns().addAll(nameColumn, phoneColumn, emailColumn);
+        table.setItems(data);
+
+        Button addButton = new Button("Add");
+        addButton.setOnAction(e -> {
+            data.add(new Contact(nameField.getText(), phoneField.getText(), emailField.getText()));
+            nameField.clear();
+            phoneField.clear();
+            emailField.clear();
+        });
+
+        Button editButton = new Button("Edit");
+        editButton.setOnAction(e -> {
+            Contact selected = table.getSelectionModel().getSelectedItem();
+            selected.setName(nameField.getText());
+            selected.setPhone(phoneField.getText());
+            selected.setEmail(emailField.getText());
+        });
+
+        Button deleteButton = new Button("Delete");
+        deleteButton.setOnAction(e -> data.remove(table.getSelectionModel().getSelectedItem()));
+
+        grid.add(addButton, 0, 3);
+        grid.add(editButton, 1, 3);
+        grid.add(deleteButton, 2, 3);
+
+        VBox vbox = new VBox(grid, table);
+        Scene scene = new Scene(vbox);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+
+class Contact {
+    private final SimpleStringProperty name;
+    private final SimpleStringProperty phone;
+    private final SimpleStringProperty email;
+
+    Contact(String name, String phone, String email) {
+        this.name = new SimpleStringProperty(name);
+        this.phone = new SimpleStringProperty(phone);
+        this.email = new SimpleStringProperty(email);
+    }
+
+    public String getName() { return name.get(); }
+    public void setName(String fName) { name.set(fName); }
+    public StringProperty nameProperty() { return name; }
+
+    public String getPhone() { return phone.get(); }
+    public void setPhone(String fName) { phone.set(fName); }
+    public StringProperty phoneProperty() { return phone; }
+
+    public String getEmail() { return email.get(); }
+    public void setEmail(String fName) { email.set(fName); }
+    public StringProperty emailProperty() { return email; }
+}
